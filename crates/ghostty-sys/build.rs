@@ -65,6 +65,22 @@ fn main() {
         .expect("zig env has no lib_dir");
 
     let include = src.join("include");
+    if std::env::var("LIBCLANG_PATH").is_err() {
+        if let Ok(user_profile) = std::env::var("USERPROFILE") {
+            let uv_python = PathBuf::from(user_profile).join("AppData/Roaming/uv/python");
+            if let Ok(entries) = std::fs::read_dir(&uv_python) {
+                for entry in entries.flatten() {
+                    let candidate = entry.path().join("Lib/site-packages/clang/native");
+                    if candidate.join("libclang.dll").exists() {
+                        unsafe {
+                            std::env::set_var("LIBCLANG_PATH", &candidate);
+                        }
+                        break;
+                    }
+                }
+            }
+        }
+    }
     let mut builder = bindgen::Builder::default()
         .header(include.join("ghostty/vt.h").to_string_lossy())
         .clang_arg(format!("-I{}", include.display()));
@@ -80,15 +96,43 @@ fn main() {
         // 22.04's clang 14 can't parse them).
         builder = builder.clang_arg(format!("-isystem{zig_lib}/include"));
     }
-    builder
-        .allowlist_function("ghostty_.*")
-        .allowlist_type("Ghostty.*")
-        .allowlist_var("GHOSTTY_.*")
-        .prepend_enum_name(false)
-        .derive_default(true)
-        .layout_tests(false)
-        .generate()
-        .expect("bindgen failed on ghostty/vt.h")
-        .write_to_file(out.join("bindings.rs"))
-        .unwrap();
+    let res = std::panic::catch_unwind(std::panic::AssertUnwindSafe(|| {
+        builder
+            .allowlist_function("ghostty_.*")
+            .allowlist_type("Ghostty.*")
+            .allowlist_var("GHOSTTY_.*")
+            .prepend_enum_name(false)
+            .derive_default(true)
+            .layout_tests(false)
+            .generate()
+    }));
+    match res {
+        Ok(Ok(bindings)) => {
+            bindings.write_to_file(out.join("bindings.rs")).unwrap();
+        }
+        Ok(Err(err)) => {
+            let fallback = manifest.join("src/bindings.rs");
+            if fallback.exists() {
+                println!(
+                    "cargo:warning=bindgen failed ({err}); using pregenerated bindings from {}",
+                    fallback.display()
+                );
+                std::fs::copy(&fallback, out.join("bindings.rs")).unwrap();
+            } else {
+                panic!("bindgen failed on ghostty/vt.h: {err}");
+            }
+        }
+        Err(_) => {
+            let fallback = manifest.join("src/bindings.rs");
+            if fallback.exists() {
+                println!(
+                    "cargo:warning=libclang unavailable (bindgen panicked); using pregenerated bindings from {}",
+                    fallback.display()
+                );
+                std::fs::copy(&fallback, out.join("bindings.rs")).unwrap();
+            } else {
+                panic!("libclang not found and no pregenerated bindings available");
+            }
+        }
+    }
 }

@@ -7,19 +7,19 @@ import { hc, run, theme, themes, fonts, updates, telemetry, settings, layouts, s
 const I = (name) => `frame/settings/${name}.svg`;
 
 const SECTIONS = [
-  { id: "look", title: "Look", icon: "palette" },
-  ...(window()?.platform === "macos" ? [{ id: "keyboard", title: "Keyboard", icon: "keyboard" }] : []),
-  { id: "machines", title: "Machines", icon: "server" },
-  { id: "alerts", title: "Alerts", icon: "bell" },
-  { id: "updates", title: "Updates", icon: "refresh" },
-  { id: "privacy", title: "Privacy", icon: "shield" },
+  { id: "look", title: "外观", icon: "palette" },
+  ...(window()?.platform === "macos" ? [{ id: "keyboard", title: "键盘", icon: "keyboard" }] : []),
+  { id: "machines", title: "机器", icon: "server" },
+  { id: "alerts", title: "提醒", icon: "bell" },
+  { id: "updates", title: "更新", icon: "refresh" },
+  { id: "privacy", title: "隐私", icon: "shield" },
 ];
 
 const LOOKS = { main: "Herdr", terminals: "Terminals", win98: "Herdr 98" };
 const APPEARANCES = [
-  [null, "System"],
-  ["light", "Light"],
-  ["dark", "Dark"],
+  [null, "跟随系统"],
+  ["light", "浅色"],
+  ["dark", "深色"],
 ];
 
 // What the app uses when settings.json names no font (settings.rs).
@@ -32,7 +32,7 @@ export default class Settings extends View {
     this.section = SECTIONS.some((s) => s.id === asked) ? asked : "look";
     this.picking = null; // "font" | "ui_font" while its list is open
     this.filter = "";
-    this.fontInput = InputState.new({ placeholder: "Type to search fonts" });
+    this.fontInput = InputState.new({ placeholder: "输入以搜索字体" });
     this.fontInput.on("change", (_e, cx) => { this.filter = this.fontInput.value(); cx.notify(); });
     this.renameInput = InputState.new();
     this.renameInput.on("focus", (_e, cx) => { this.renameFocused = true; cx.notify(); });
@@ -483,29 +483,29 @@ export default class Settings extends View {
       .child(this.heading(t, "Layout"))
       .child(this.layoutPicker(t, cx))
       .child(div().h(18))
-      .child(this.heading(t, "Theme"))
-      .child(this.row(t, "Appearance", "Light or dark, or as your system is now.", this.appearancePicker(t, cx)))
-      .child(div().pt(12).pb(8).text_size(12.5).text_color(t.dim).child("For the layout you're in: each layout keeps its own light and dark theme."))
-      .child(div().pb(6).text_size(12.5).font_medium().text_color(t.muted).child("Dark"))
+      .child(this.heading(t, "主题"))
+      .child(this.row(t, "外观模式", "跟随系统、浅色或深色。", this.appearancePicker(t, cx)))
+      .child(div().pt(12).pb(8).text_size(12.5).text_color(t.dim).child("针对当前布局：每个布局均可独立保存各自的浅色与深色主题。"))
+      .child(div().pb(6).text_size(12.5).font_medium().text_color(t.muted).child("深色"))
       .child(this.themePicker(t, false))
-      .child(div().pt(10).pb(6).text_size(12.5).font_medium().text_color(t.muted).child("Light"))
+      .child(div().pt(10).pb(6).text_size(12.5).font_medium().text_color(t.muted).child("浅色"))
       .child(this.themePicker(t, true))
       .child(div().h(18))
-      .child(this.heading(t, "Size and fonts"))
+      .child(this.heading(t, "界面缩放与字体"))
       .child(
         this.row(
           t,
-          "Zoom",
-          "Everything: terminals, panels, text.",
+          "界面缩放",
+          "整体缩放：终端、面板与文字。",
           h_flex()
             .gap(8)
             .items_center()
             .child(this.stepper(t, "st-zoom", `${Math.round(s.zoom * 100)}%`, () => run("app.zoom_out"), () => run("app.zoom_in")))
-            .child(this.button(t, "st-zoom-reset", "Reset", () => run("app.zoom_reset"))),
+            .child(this.button(t, "st-zoom-reset", "重置", () => run("app.zoom_reset"))),
         ),
       )
-      .child(fontRow("font", "font_size", "Terminal font", s.font_family, DEFAULT_FONT, s.font_size))
-      .child(fontRow("ui_font", null, "Interface font", s.ui_font_family, DEFAULT_UI_FONT));
+      .child(fontRow("font", "font_size", "终端字体", s.font_family, DEFAULT_FONT, s.font_size))
+      .child(fontRow("ui_font", null, "界面字体", s.ui_font_family, DEFAULT_UI_FONT));
   }
 
   keyboard(t) {
@@ -824,7 +824,7 @@ export default class Settings extends View {
       .gap(2)
       .border_r(1)
       .border_color(t.border)
-      .child(div().px(10).pt(6).pb(12).text_size(16).font_semibold().text_color(t.foreground).child("Settings"))
+      .child(div().px(10).pt(6).pb(12).text_size(16).font_semibold().text_color(t.foreground).child("设置"))
       .children(
         SECTIONS.map((s) => {
           const on = s.id === this.section;

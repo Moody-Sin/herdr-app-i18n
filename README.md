@@ -1,99 +1,133 @@
-# Herdr
+# herdr-app-i18n
 
-Herdr is a desktop app for terminals and coding agents. Keep work in spaces, see which agents need you, and leave terminals running when you close the window.
+> 为智能体编码与终端工作流而生的原生桌面端应用（全量简体中文本地化分支）。
 
-## Install
+<p align="center">
+  <img src="assets/icons/herdr-app.png" alt="herdr-app logo" width="100" />
+</p>
 
-### Linux and macOS
+<p align="center">
+  <a href="https://herdr.dev">官方主页</a> · <a href="#安装">安装</a> · <a href="#核心特性">特性</a> · <a href="#从源码构建">构建</a> · <a href="https://github.com/herdrdev/herdr-app">上游英文原版</a>
+</p>
+
+<p align="center">
+  <a href="LICENSE"><img src="https://img.shields.io/badge/license-Apache--2.0-666666?labelColor=333333" alt="Apache 2.0 许可证" /></a>
+  <a href="https://github.com/herdrdev/herdr-app/releases"><img src="https://img.shields.io/github/v/release/herdrdev/herdr-app?label=upstream&labelColor=333333&color=666666" alt="上游版本" /></a>
+</p>
+
+---
+
+## 目录
+
+- [背景与定位](#背景与定位)
+- [与上游的关系](#与上游的关系)
+- [核心特性](#核心特性)
+- [安装方式](#安装方式)
+- [快速上手](#快速上手)
+  - [空间与窗格](#空间与窗格)
+  - [智能体聚合侧边栏](#智能体聚合侧边栏)
+  - [Peek 悬浮预览](#peek-悬浮预览)
+  - [远程多机器支持](#远程多机器支持)
+- [布局与扩展 (Mods)](#布局与扩展-mods)
+- [面向智能体](#面向智能体)
+- [从源码构建](#从源码构建)
+- [许可证](#许可证)
+
+---
+
+## 背景与定位
+
+[Herdr Desktop App](https://github.com/herdrdev/herdr-app) 是由 Herdr 团队全新打造的原生桌面客户端。与早期的纯终端 TUI 版相比，桌面端采用了极致性能的跨平台底层架构：
+
+- **GPUI 渲染引擎**：基于 Zed 同款的 GPU 硬件加速渲染管线（Vulkan / Metal / Direct3D），在高刷与重载下依旧丝滑省电。
+- **Ghostty VT 核心**：深度集成 Ghostty 终端虚拟层，具备完备的现代终端协议（真彩、Kitty 图像协议、重排及超低时延）。
+- **进程与窗口解耦**：底层依托 [`herdr-core`](https://github.com/herdrdev/herdr-core) 守护进程维持终端与智能体的生命周期。关闭窗口或重启系统，后台智能体与编译任务依然平稳运行。
+- **可编程扩展 (Mods)**：内置 QuickJS 引擎，面板、侧边栏、状态栏均由高内聚的 JavaScript 插件驱动，支持秒级热重载与自由定制。
+
+---
+
+## 与上游的关系
+
+本仓库为官方上游 [`herdrdev/herdr-app`](https://github.com/herdrdev/herdr-app) 的 **简体中文全量本地化分支**：
+
+1. **界面全量中文**：覆盖智能体列表、空间管理、Git 变更、文件浏览器、设置面板、快捷键说明及核心命令。
+2. **完全独立维护**：本分支不向上游提 PR，专门面向中文开发者社区维护高质量汉化与同步。
+3. **上游持续跟进**：定期拉取 upstream 最新特性与 Bug 修复，保障版本功能同步。
+
+---
+
+## 核心特性
+
+- **智能体统一看板**：全局聚合多工作区、多窗格、甚至智能体派生出的所有 Worker。实时清晰展示状态：`等待处理`（需要确认）、`运行中`（正在思考或执行）、`已完成`（已出结果）、`空闲`。
+- **Peek 原生悬浮速览**：当智能体在文本中提到某个终端编号（如 `t3` 或 `remote/t7`）时，按住 `Ctrl`（macOS 为 `Cmd`）点击终端地址，即可弹出悬浮小窗直接查看与交互，无需切换当前工作区。
+- **拖拽自由布局**：支持类似现代 IDE 的自由拖拽分栏、停靠、交换及最大化聚焦。
+- **远程无缝漫游**：直读 `~/.ssh/config`，一键连接远端主机。远端终端始终保存在远端核心中，本地关机断网不中断远端任务。
+
+---
+
+## 安装方式
+
+### 官方脚本安装
+
+#### Linux 与 macOS
 
 ```sh
 curl -fsSL https://releases.herdr.dev/app/install.sh | sh
 ```
 
-Linux needs a desktop session and a working Vulkan driver. macOS builds are available for Apple Silicon; Intel Mac users can [build from source](#build-from-source). Linux builds are x86-64 and ARM64.
+> Linux 需要图形桌面环境与支持 Vulkan 的驱动；macOS 目前提供 Apple Silicon 原生构建，Intel Mac 可由源码构建。
 
-The installer adds Herdr to your apps and puts the command in `~/.local/bin`.
-Add that folder to your PATH if the installer asks.
-On macOS the app lives in `~/Applications/Herdr.app`.
-For drag-and-drop installation on Apple Silicon, download [Herdr.dmg](https://releases.herdr.dev/app/Herdr.dmg) and drag Herdr to Applications.
+#### Windows (PowerShell)
 
-### Windows
-
-Run in PowerShell on x64 Windows with curl and tar installed (Windows 10 1803 or newer):
+在 64 位 Windows 10 (1803+) 或 Windows 11 环境下运行：
 
 ```powershell
 irm https://releases.herdr.dev/app/install.ps1 | iex
 ```
 
-Herdr appears in the Start menu. The installer adds `%LOCALAPPDATA%\Programs\herdr-app` to your user PATH. Open a new terminal to pick it up.
+安装程序会自动部署到 `%LOCALAPPDATA%\Programs\herdr-app` 并创建开始菜单快捷方式，同时按需自动安装匹配的 `herdr-core`。
 
-Both installers download and run code. Read the [shell installer](distribution/install.sh) or [PowerShell installer](distribution/install.ps1) first if you prefer.
-They also install [herdr-core](https://github.com/herdrdev/herdr-core) if it is missing.
-The app can help install or update a core it cannot use.
+---
 
-## Find your work
+## 快速上手
 
-A **space** holds work on one machine, usually in one repo. Each space has **tabs**. Split a tab into **panes** to put terminals or mod panels beside each other.
+### 空间与窗格
+- **空间 (Space)**：对应一个项目或仓库的工作区，包含独立的标签页与窗格。
+- **分栏与调整**：鼠标悬停在窗格顶部把手可拖动重新排列；右键菜单支持快速“向右分栏”、“向下分栏”或“最大化窗格”。
 
-An unnamed space follows its first terminal's folder. Name a space or tab when you want a label that stays.
-New tabs start in the focused terminal's folder.
+### 智能体聚合侧边栏
+- 侧边栏实时汇总当前运行的智能体；
+- 支持**置顶**重要智能体；
+- 支持切换**按空间分组**或**按优先级排序**（优先呈现等待人类回复的智能体）。
 
-The agents sidebar brings agents from your spaces into one list, including workers started by another agent.
-Agents that report status show as:
+### Peek 悬浮预览
+- 终端文本中出现的终端地址（如 `t1`、`server/t2`）具有交互感知能力；
+- 按住 `Ctrl` 点击直接打开悬浮速览；可一键将速览窗格“提升为标签页”。
 
-- **Working:** still busy.
-- **Blocked:** waiting for you.
-- **Done:** finished while you were looking elsewhere.
-- **Idle:** not working, or a finished agent you have looked at.
+### 远程多机器支持
+- 在 `设置 → 机器` 或侧边栏中添加 SSH 主机；
+- 远程空间完全在远端执行，断网与休眠不丢失现场。
 
-Click an agent to see it. A worker without a pane opens in **peek**, over your tab. Keep it as a tab if you want it beside your other work.
-Ctrl-click a live terminal address in terminal text to peek at it; use Cmd-click on macOS.
-An address such as `t7` means a terminal on the same machine as the terminal showing it. `vps/t7` names one on another machine.
+---
 
-The window arranges terminals. The core runs them.
-Closing the window leaves them running; closing a pane or tab ends its terminals.
-After a reboot or core crash, kept panes get fresh shells in their last folders, not their old programs.
+## 布局与扩展 (Mods)
 
-## Work on another machine
+桌面端的所有界面面板均作为 **Mod**（JavaScript 小程序）实现，位于用户配置目录下的 `mods/` 文件夹中：
+- 布局结构保存在 `layouts/` 目录下；
+- 保存自定义 Mod 或主题后，窗口**即时热重载**，无需重启；
+- 按 `Ctrl+Shift+P`（macOS 为 `Cmd+Shift+P`）可唤起命令面板，查找与执行任意操作。
 
-Add an SSH machine from Settings → Machines or the sidebar's Add machine action.
-Pick a host from your SSH config or type how SSH reaches it.
-Spaces on that machine run their terminals there, not on your computer.
+---
 
-Each machine keeps its spaces, tabs and splits in its core. Connected screens share that structure and the live terminals, but keep their own focus and zoom.
-Remote work keeps running when your local window closes or your laptop sleeps, as long as the remote machine and core stay up.
+## 面向智能体
 
-## Make it yours
-
-Open the command palette to find an action by name, or open Settings to change fonts, colors, sounds and other preferences.
-The built-in layouts include Herdr, Terminals and Herdr 98.
-A **layout** arranges the window. **Mods** are small JavaScript programs that draw its panels, menus and dialogs.
-
-Duplicate a shipped layout or mod before changing its structure or code. Your copies stay yours; Herdr updates the shipped ones on start.
-Save a personal layout, mod or key file and the window reloads it.
-A broken edit keeps the last good version and reports the error.
-
-Ctrl+Shift+P shows every command and its key (Cmd+Shift+P on macOS). Change any key in `keys.json`; see [the keys section](defaults/AGENTS.md#keys-keysjson) of the mod guide for the format.
-
-[Layouts and mods](docs/mods.md) · [Commands](docs/commands.md)
-
-## Updates and privacy
-
-Installed releases check for updates in the background and download a new app beside the running one. It takes over when you quit and reopen, or choose the update action. Your terminals keep running in the core.
-Settings → Updates shows what is available. What's New opens after an update; you can open it again from the command palette.
-Builds from source do not update themselves.
-
-Usage telemetry is on by default in releases. Turn it off in Settings → Privacy.
-Mods are trusted code, not sandboxed extensions. Read [security and privacy](docs/security.md) before installing someone else's mod.
-
-## For agents
+桌面端内置面向 AI 智能体的交互与引导协议：
 
 ```sh
 herdr-app --skill
 ```
 
-This prints the agent guide for driving the window. The herdr-core skill points agents here.
-Use herdr-core for running and coordinating programs; use the app to change what you see.
+该命令会输出专门教导智能体如何控制和操作桌面窗口的指南与接口契约。智能体亦可使用以下命令检查窗口状态：
 
 ```sh
 herdr-app ls
@@ -101,37 +135,27 @@ herdr-app status
 herdr-app commands
 ```
 
-The first two inspect the open window. The command list also works without one.
-See the [command reference](docs/commands.md) for arguments.
+---
 
-## Build from source
+## 从源码构建
 
-For bugs, mod API requests and code contributions, see [Contributing](CONTRIBUTING.md).
-
-Clone this repo with its submodules. Use Rust 1.95.0 and Zig 0.16.0, the versions used in [CI](.github/workflows/ci.yml).
-Linux needs the development packages listed in that workflow.
+编译构建需要 **Rust 1.95+** 与 **Zig 0.16.0**：
 
 ```sh
-git clone --recurse-submodules https://github.com/herdrdev/herdr-app.git
-cd herdr-app
-just build
-just test
-just install
+git clone --recurse-submodules https://github.com/Moody-Sin/herdr-app-i18n.git
+cd herdr-app-i18n
+cargo build --release
 ```
 
-Install [just](https://github.com/casey/just) to use these recipes.
-The platform installer builds a release and adds the app to your desktop.
-On Linux it links to this checkout, so keep the checkout in place.
-Quit and reopen Herdr to use the new build.
-
-Documentation checks also need [Bun](https://bun.sh): `just docs-check` checks generated pages and CLI examples; `just docs-generate` refreshes the reference pages.
-
-To compare drawing changes on Windows, Linux or macOS, run the same fixed workloads against each build:
+运行单元测试与校验：
 
 ```sh
-python scripts/bench.py --bin <app executable> --set spinners --seconds 20
+cargo test
+bun test scripts/files.test.ts scripts/picker.test.ts scripts/agents.test.ts scripts/spaces.test.ts
 ```
 
-The runner requires `hc` on PATH and uses the Python executable running the script. It prints a unique artifact folder with the run settings, counters and results, then stops its private app, terminals and core. Both sets use Python fixture programs; the default set’s TUI workload replaces historical `btop` measurements. `--only spinners` measures just the quiet native spinner scenario. Keep the window visible and the display awake, and compare the same window activity and display settings; inactive windows may draw at a lower rate. Windows records visibility, foreground activity and display Hz at each measurement boundary; other platforms mark these observations unavailable. Visibility does not establish occlusion. Draws are window render calls. Render-to-paint elapsed time stops before scene finalization, backend drawing, uploads and presentation; it is separate from OS process CPU time. Neither measures physical presentation or the FPS HUD’s derived MAX FPS.
+---
 
-`python scripts/bench_compare.py ghostty --root <artifact folder>` reuses a run’s fake agent for the macOS comparison. Benchmark checks: `python -m unittest discover -s scripts -p test_bench.py`.
+## 许可证
+
+本项目基于 [Apache-2.0](LICENSE) 协议开源。

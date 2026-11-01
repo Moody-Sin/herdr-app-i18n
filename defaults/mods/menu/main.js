@@ -33,41 +33,41 @@ function items(p, git) {
       // Once they go to the program, Shift+right-click still opens this menu.
       const toProgram = term?.labels?.["herdr.right-click"] === "program";
       return [
-        ["Split right", "pane.split", { direction: "right", pane: tg.pane }],
-        ["Split down", "pane.split", { direction: "down", pane: tg.pane }],
-        ["Zoom", "pane.zoom", { pane: tg.pane }],
+        ["向右分栏", "pane.split", { direction: "right", pane: tg.pane }],
+        ["向下分栏", "pane.split", { direction: "down", pane: tg.pane }],
+        ["最大化窗格", "pane.zoom", { pane: tg.pane }],
         ...(term
           ? [
               toProgram
-                ? ["Use Herdr right-click menu", "terminal.right_click", { terminal: term.address, to: "menu" }]
-                : ["Send right-clicks to pane", "terminal.right_click", { terminal: term.address, to: "program" }],
+                ? ["使用 Herdr 右键菜单", "terminal.right_click", { terminal: term.address, to: "menu" }]
+                : ["将右键点击发送给窗格", "terminal.right_click", { terminal: term.address, to: "program" }],
             ]
           : []),
-        ...(parent ? [[`Send back to ${parent.name || parent.address}`, "terminal.park", { terminal: term.address }]] : []),
-        ["Close pane", "pane.close", { pane: tg.pane }],
+        ...(parent ? [[`放回 ${parent.name || parent.address}`, "terminal.park", { terminal: term.address }]] : []),
+        ["关闭窗格", "pane.close", { pane: tg.pane }],
       ];
     }
     case "tab":
       return [
-        ["Rename", "tab.rename", { id: tg.id }],
-        ["New tab", "tab.new", { space: tg.space }],
-        ["Close", "tab.close", { id: tg.id }],
+        ["重命名", "tab.rename", { id: tg.id }],
+        ["新建标签页", "tab.new", { space: tg.space }],
+        ["关闭", "tab.close", { id: tg.id }],
       ];
     case "space":
       return [
-        ["Rename", "space.rename", { id: tg.id }],
-        ...(git ? [["New worktree", "worktree", { space: tg.id, action: "new" }], ["Open worktree", "worktree", { space: tg.id, action: "open" }]] : []),
-        ...(git === "linked" ? [["Remove worktree", "worktree", { space: tg.id, action: "remove" }]] : []),
-        ["Close", "space.close", { id: tg.id }],
+        ["重命名", "space.rename", { id: tg.id }],
+        ...(git ? [["新建工作树", "worktree", { space: tg.id, action: "new" }], ["打开工作树", "worktree", { space: tg.id, action: "open" }]] : []),
+        ...(git === "linked" ? [["移除工作树", "worktree", { space: tg.id, action: "remove" }]] : []),
+        ["关闭", "space.close", { id: tg.id }],
       ];
     default:
       return [
-        ["New space", "space.new", {}],
-        ["Keybinds", "app.help", {}],
-        ["Theme: graphite", "app.theme", { name: "graphite" }],
-        ["Theme: ink", "app.theme", { name: "ink" }],
-        ["Theme: moss", "app.theme", { name: "moss" }],
-        ["Theme: atom one dark", "app.theme", { name: "atom-one-dark" }],
+        ["新建空间", "space.new", {}],
+        ["快捷键说明", "app.help", {}],
+        ["主题：graphite", "app.theme", { name: "graphite" }],
+        ["主题：ink", "app.theme", { name: "ink" }],
+        ["主题：moss", "app.theme", { name: "moss" }],
+        ["主题：atom one dark", "app.theme", { name: "atom-one-dark" }],
       ];
   }
 }
