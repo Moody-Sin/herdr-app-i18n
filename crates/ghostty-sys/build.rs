@@ -30,6 +30,7 @@ fn main() {
         println!("cargo:rerun-if-changed={}", src.join(path).display());
     }
     println!("cargo:rerun-if-env-changed=ZIG");
+    println!("cargo:rerun-if-env-changed=LIBCLANG_PATH");
 
     let zig = std::env::var("ZIG").unwrap_or_else(|_| "zig".into());
     let status = Command::new(&zig)

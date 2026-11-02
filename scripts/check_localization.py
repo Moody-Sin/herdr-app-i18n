@@ -18,7 +18,7 @@ def check_commands() -> list[str]:
         return ["src/commands.rs not found"]
 
     content = commands_file.read_text(encoding="utf-8")
-    cmd_pattern = re.compile(r'cmd\(\s*"([^"]+)",\s*&\[[^\]]*\],\s*"([^"]+)"\)', re.DOTALL)
+    cmd_pattern = re.compile(r'cmd\(\s*"([^"]+)",\s*&\[[^\]]*\],\s*"((?:\\.|[^"\\])*)"\)', re.DOTALL)
     for match in cmd_pattern.finditer(content):
         name = match.group(1)
         about = match.group(2)

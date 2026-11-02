@@ -39,7 +39,10 @@ pre-release: test docs-check
 build:
     cargo build --locked
 
-test:
+check-i18n:
+    python scripts/check_localization.py
+
+test: check-i18n
     bun test scripts/files.test.ts scripts/picker.test.ts scripts/agents.test.ts scripts/spaces.test.ts
     cargo test --locked
 
